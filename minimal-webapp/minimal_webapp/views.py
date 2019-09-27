@@ -64,4 +64,8 @@ def best(request, conn=None, **kwargs):
         # print i
         data.append({'id': i.id.val, 'name': i.name.val})
 
+    # Option to return json instead of HTML
+    if (request.GET.get('json')):
+        return JsonResponse({'data': data})
+
     return render(request, 'minimal_webapp/best.html', {"images": data})
