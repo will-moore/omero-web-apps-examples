@@ -13,7 +13,13 @@
         
         <ul id="images">
             {% for i in images %}
-                <li>{{ i.name }}</li>
+                <li>
+                    <a target="_blank" href="{% url 'web_image_viewer' i.id %}">
+                        <img src="{% url 'render_thumbnail' i.id %}" />
+                    </a>
+                    {{ i.name }}
+                    <a target="_blank" href="{% url 'webindex' %}?show=image-{{ i.id }}">Show</a>
+                </li>
             {% endfor %}
         </ul>
 
