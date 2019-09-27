@@ -1,0 +1,21 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>OMERO web app - best images</title>
+
+        <!-- Include static css -->
+        <link rel="stylesheet" type="text/css" href="{% static 'minimal_webapp/app.css' %}" />
+    </head>
+
+    <body>
+        <h1>Best images</h1>
+        
+        <ul id="images">
+            {% for i in images %}
+                <li>{{ i.name }}</li>
+            {% endfor %}
+        </ul>
+
+    </body>
+</html>
