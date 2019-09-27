@@ -45,14 +45,17 @@ def index(request, conn=None, **kwargs):
 @login_required()
 def best(request, conn=None, **kwargs):
 
+    rating_ns = "openmicroscopy.org/omero/insight/rating"
     qs = conn.getQueryService()
     params = omero.sys.ParametersI()
     params.addLong('rating', 5)
+    params.addString('ns', rating_ns)
 
     query = """select image from Image as image
         left outer join fetch image.annotationLinks as annLink
         left outer join fetch annLink.child as ann
-        where ann.longValue=:rating"""
+        where ann.ns=:ns
+        and ann.longValue=:rating"""
 
     result = qs.findAllByQuery(query, params)
 
