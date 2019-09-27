@@ -17,6 +17,8 @@
 
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
+from django.http import JsonResponse
+import omero
 
 from omeroweb.decorators import login_required
 
@@ -39,3 +41,27 @@ def index(request, conn=None, **kwargs):
 
     # Render the html template and return the http response
     return render(request, 'minimal_webapp/index.html', context)
+
+@login_required()
+def best(request, conn=None, **kwargs):
+
+    rating_ns = "openmicroscopy.org/omero/insight/rating"
+    qs = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    params.addLong('rating', 5)
+    params.addString('ns', rating_ns)
+
+    query = """select image from Image as image
+        left outer join fetch image.annotationLinks as annLink
+        left outer join fetch annLink.child as ann
+        where ann.ns=:ns
+        and ann.longValue=:rating"""
+
+    result = qs.findAllByQuery(query, params)
+
+    data = []
+    for i in result:
+        # print i
+        data.append({'id': i.id.val, 'name': i.name.val})
+
+    return JsonResponse({"count": len(result), "data": data})
