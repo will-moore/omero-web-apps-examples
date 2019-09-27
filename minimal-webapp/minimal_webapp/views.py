@@ -64,4 +64,4 @@ def best(request, conn=None, **kwargs):
         # print l
         data.append({'id': l.id.val, 'name': l.name.val})
 
-    return JsonResponse({"count": len(result), "data": data})
+    return render(request, 'minimal_webapp/best.html', {"images": data})
