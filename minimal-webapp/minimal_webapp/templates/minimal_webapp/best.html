@@ -37,6 +37,14 @@
                     </a>
                     {{ i.name }}
                     <a target="_blank" href="{% url 'webindex' %}?show=image-{{ i.id }}">Show</a>
+
+                    <label>Like: </label>
+                    <form action="{% url 'minimal_webapp_like' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{ i.id }}" />
+                        <input type="checkbox" name="like" value="on"/>
+                        <input type="submit" value="OK">
+                    </form>
                 </li>
             {% endfor %}
         </ul>

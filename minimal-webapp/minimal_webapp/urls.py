@@ -26,4 +26,6 @@ urlpatterns = [
     url(r'^$', views.index, name='minimal_webapp_index'),
 
     url(r'^best/$', views.best, name='minimal_webapp_best'),
+
+    url(r'^like/$', views.like, name='minimal_webapp_like'),
 ]

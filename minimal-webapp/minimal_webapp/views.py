@@ -17,7 +17,7 @@
 
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 import omero
 
 from omeroweb.decorators import login_required
@@ -69,3 +69,27 @@ def best(request, conn=None, **kwargs):
         return JsonResponse({'data': data})
 
     return render(request, 'minimal_webapp/best.html', {"images": data})
+
+@login_required()
+def like(request, conn=None, **kwargs):
+
+    ns = 'web.app.demo.like'
+    uid = conn.getUserId()
+
+    image_id = request.POST.get('id')
+    like = request.POST.get('like', False)
+    image = conn.getObject('Image', image_id)
+    if image is not None:
+        # is image already liked by user?
+        links = conn.getAnnotationLinks('Image', parent_ids=[image.id], ns=ns)
+        links = [l for l in links if l.getDetails().getOwner().id == uid]
+        if len(links) > 0 and not like:
+            # Delete the 'like' annotation
+            conn.deleteObject(links[0].child)
+        elif len(links) == 0 and like:
+            # Create new 'like' annotation on the image
+            ann = omero.gateway.BooleanAnnotationWrapper()
+            ann.setValue(True)
+            ann.setNs(ns)
+            image.linkAnnotation(ann)
+    return HttpResponseRedirect(reverse('minimal_webapp_best'))
