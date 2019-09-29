@@ -19,6 +19,8 @@
                     </a>
                     {{ i.name }}
                     <a target="_blank" href="{% url 'webindex' %}?show=image-{{ i.id }}">Show</a>
+                    |
+                    <a href="{% url 'minimal_webapp_likes' i.id %}">Likes</a>
                 </li>
             {% endfor %}
         </ul>

@@ -17,7 +17,8 @@
 
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
+from omero_marshal import get_encoder
 import omero
 
 from omeroweb.decorators import login_required
@@ -69,3 +70,40 @@ def best(request, conn=None, **kwargs):
         return JsonResponse({'data': data})
 
     return render(request, 'minimal_webapp/best.html', {"images": data})
+
+@login_required()
+def likes(request, image_id, conn=None, **kwargs):
+
+    image = conn.getObject("Image", image_id)
+    img = image._obj
+    encoder = get_encoder(img.__class__)
+    data = encoder.encode(img)
+
+    if (request.GET.get('json')):
+        return JsonResponse({'image': data})
+
+    return render(request, 'minimal_webapp/likes.html', {"image": data, "id": image.id})
+
+@login_required()
+def like(request, conn=None, **kwargs):
+
+    ns = 'web.app.demo.like'
+    uid = conn.getUserId()
+
+    image_id = request.POST.get('id')
+    like = request.POST.get('like', False)
+    image = conn.getObject('Image', image_id)
+    if image is not None:
+        # is image already liked by user?
+        links = conn.getAnnotationLinks('Image', parent_ids=[image.id], ns=ns)
+        links = [l for l in links if l.getDetails().getOwner().id == uid]
+        if len(links) > 0 and not like:
+            # Delete the 'like' annotation
+            conn.deleteObject(links[0].child)
+        elif len(links) == 0 and like:
+            # Create new 'like' annotation on the image
+            ann = omero.gateway.BooleanAnnotationWrapper()
+            ann.setValue(True)
+            ann.setNs(ns)
+            image.linkAnnotation(ann)
+    return HttpResponseRedirect(reverse('minimal_webapp_likes', args=[image.id]))

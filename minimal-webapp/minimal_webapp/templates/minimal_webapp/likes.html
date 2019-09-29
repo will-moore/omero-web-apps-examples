@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>OMERO web app - image likes</title>
+
+        <!-- Include static css -->
+        <link rel="stylesheet" type="text/css" href="{% static 'minimal_webapp/app.css' %}" />
+    </head>
+
+    <body>
+        <h1>Likes</h1>
+
+        <h2>{{ image.Name }} {{ id }} </h2>
+
+        <img style="float:left" src="{% url 'render_thumbnail' id %}" />
+
+        <label>Like: </label>
+
+        <form action="{% url 'minimal_webapp_like' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ id }}" />
+            <input type="checkbox" name="like" value="on"/>
+            <input type="submit" value="OK">
+        </form>
+
+        <a target="_blank" href="{% url 'webindex' %}?show=image-{{ id }}">Show</a>
+    </body>
+</html>
